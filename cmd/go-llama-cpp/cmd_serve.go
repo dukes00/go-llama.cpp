@@ -15,6 +15,7 @@ import (
 	"go-llama.cpp/internal/registry"
 	"go-llama.cpp/internal/server"
 	"go-llama.cpp/internal/ui"
+	"go-llama.cpp/internal/wizard"
 )
 
 var (
@@ -63,10 +64,13 @@ func cmdServe() *cobra.Command {
 			// Build config
 			var cfg *config.Config
 
+			// Create wizard for interactive preset save/load
+			configStore := &config.Store{Dir: layout.Configs}
+			wz := &wizard.Wizard{Store: configStore, UI: ui.Default}
+
 			if configFlag != "" {
 				// Load from config file
-				store := &config.Store{Dir: layout.Configs}
-				cfg, err = store.Load(configFlag)
+				cfg, err = configStore.Load(configFlag)
 				if err != nil {
 					return fmt.Errorf("loading config %q: %w", configFlag, err)
 				}
@@ -74,19 +78,51 @@ func cmdServe() *cobra.Command {
 				// Check if any CLI flags were set
 				if cliOverridesExist(cmd) {
 					if !overrideFlag {
+						// --config set but no --override: warn and ignore flags
 						ui.Warn("Ignoring CLI flags because --config is set. Use --override to apply them.")
-						// Build overrides anyway for potential use
-						overrides := buildConfigFromFlags(cmd, modelName)
-						cfg = mergeConfigWithFlags(cfg, overrides)
 					} else {
-						// Merge CLI flags into loaded config
+						// --config --override: merge flags into config
 						overrides := buildConfigFromFlags(cmd, modelName)
 						cfg = mergeConfigWithFlags(cfg, overrides)
+
+						// Prompt to save the modified config as a new preset
+						saved, presetName, err := wz.PromptSaveOverride(configFlag, cfg)
+						if err != nil {
+							return fmt.Errorf("prompting to save override: %w", err)
+						}
+						if saved {
+							ui.Info("Override saved as preset '%s'.", presetName)
+						}
 					}
 				}
 			} else {
-				// Build config from CLI flags
-				cfg = buildConfigFromFlags(cmd, modelName)
+				// No --config flag: check for auto-load or build from flags
+				// Step 1: Try to auto-load preset by model name
+				if loadedCfg, found := wz.AutoLoadPreset(modelName); found {
+					cfg = loadedCfg
+					// Auto-loaded preset - check if CLI flags were provided
+					if cliOverridesExist(cmd) {
+						// CLI flags override the preset - build config from flags
+						// Do NOT prompt to save (explicit override)
+						cfg = buildConfigFromFlags(cmd, modelName)
+						ui.Info("Preset '%s' exists but CLI flags provided. Using CLI flags.", modelName)
+					}
+					// If no CLI flags, use the loaded config as-is
+				} else {
+					// No preset found or not loaded - build config from flags
+					cfg = buildConfigFromFlags(cmd, modelName)
+
+					// Step 2: If any flags were set (not just bare `serve model`), prompt to save
+					if cliOverridesExist(cmd) {
+						saved, presetName, err := wz.PromptSavePreset(modelName, cfg)
+						if err != nil {
+							return fmt.Errorf("prompting to save preset: %w", err)
+						}
+						if saved {
+							ui.Info("Preset '%s' saved.", presetName)
+						}
+					}
+				}
 			}
 
 			// Start server

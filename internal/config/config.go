@@ -117,8 +117,13 @@ func (s *Store) Save(name string, cfg *Config) error {
 		return errors.New("config name must not contain /, \\, or ..")
 	}
 
+	// Ensure directory exists
+	if err := os.MkdirAll(s.Dir, 0o755); err != nil {
+		return err
+	}
+
 	// Marshal to JSON
-	data, err := json.MarshalIndent(cfg, "", " ")
+	data, err := json.Marshal(cfg)
 	if err != nil {
 		return err
 	}

@@ -18,9 +18,19 @@ var Default = &UI{
 
 // UI holds the I/O streams for user interaction.
 type UI struct {
-	In  io.Reader
-	Out io.Writer
-	Err io.Writer
+	In     io.Reader
+	Out    io.Writer
+	Err    io.Writer
+	reader *bufio.Reader
+}
+
+// getReader returns a persistent bufio.Reader for In, creating it lazily.
+// Reusing the same reader across calls preserves buffered data between prompts.
+func (u *UI) getReader() *bufio.Reader {
+	if u.reader == nil {
+		u.reader = bufio.NewReader(u.In)
+	}
+	return u.reader
 }
 
 // Info prints [INFO] <message> to stdout.
@@ -41,22 +51,21 @@ func (u *UI) Error(format string, args ...any) {
 // Prompt prints question to stdout, reads one line from stdin, returns trimmed input.
 func (u *UI) Prompt(question string) (string, error) {
 	fmt.Fprint(u.Out, question)
-	reader := bufio.NewReader(u.In)
-	input, err := reader.ReadString('\n')
+	input, err := u.getReader().ReadString('\n')
 	if err != nil {
-		return "", err
+		return strings.TrimSpace(input), err
 	}
 	return strings.TrimSpace(input), nil
 }
 
 // Confirm prints question (y/n) with default, calls Prompt, returns bool.
 func (u *UI) Confirm(question string, defaultYes bool) (bool, error) {
-	prompt := question + " [y/N]:"
-	if !defaultYes {
-		prompt = question + " [Y/n]:"
+	if defaultYes {
+		fmt.Fprint(u.Out, question+" [Y/n]:")
+	} else {
+		fmt.Fprint(u.Out, question+" [y/N]:")
 	}
-	fmt.Fprint(u.Out, prompt)
-	input, err := u.Prompt(question)
+	input, err := u.Prompt("")
 	if err != nil {
 		return false, err
 	}
