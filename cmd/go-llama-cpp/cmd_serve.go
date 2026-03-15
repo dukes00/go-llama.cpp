@@ -4,15 +4,13 @@ package main
 import (
 	"errors"
 	"fmt"
-	"os"
-	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"go-llama.cpp/internal/config"
 	"go-llama.cpp/internal/homedir"
+	"go-llama.cpp/internal/model"
 	"go-llama.cpp/internal/registry"
 	"go-llama.cpp/internal/server"
 	"go-llama.cpp/internal/ui"
@@ -297,17 +295,14 @@ func cmdServe() *cobra.Command {
 				return fmt.Errorf("resolving home directory: %w", err)
 			}
 
-			// Construct model path
-			modelPath := filepath.Join(layout.Models, modelName+".gguf")
-
-			// Validate model name (no path separators or ..)
-			if strings.Contains(modelName, "/") || strings.Contains(modelName, "\\") || strings.Contains(modelName, "..") {
-				return errors.New("model name must not contain /, \\, or ..")
-			}
-
-			// Check if model file exists
-			if _, err := os.Stat(modelPath); os.IsNotExist(err) {
-				return fmt.Errorf("model file not found: %s", modelPath)
+			mgr := model.Manager{ModelsDir: layout.Models}
+			modelPath, err := mgr.Resolve(modelName)
+			if err != nil {
+				if errors.Is(err, model.ErrModelNotFound) {
+					ui.Warn("Model '%s' not found in %s", modelName, layout.Models)
+					ui.Info("Download it with: go-llama-cpp download <org>/<repo>/%s.gguf", modelName)
+				}
+				return err
 			}
 
 			// Build config

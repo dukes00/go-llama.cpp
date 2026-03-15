@@ -29,6 +29,8 @@ func main() {
 	rootCmd.AddCommand(cmdList())
 	rootCmd.AddCommand(cmdKill())
 	rootCmd.AddCommand(cmdLogs())
+	rootCmd.AddCommand(cmdDownload())
+	rootCmd.AddCommand(cmdModels())
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)

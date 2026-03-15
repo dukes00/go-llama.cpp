@@ -1,6 +1,7 @@
 package registry
 
 import (
+	"os"
 	"testing"
 	"time"
 )
@@ -19,7 +20,7 @@ func TestRegistry_AddAndList(t *testing.T) {
 	// Add entries
 	entry1 := Entry{
 		ModelName: "test-model-1",
-		PID:       12345,
+		PID:       os.Getpid(),
 		Port:      8080,
 		LogFile:   "/tmp/test.log",
 		StartedAt: time.Now().Format(time.RFC3339),
@@ -30,7 +31,7 @@ func TestRegistry_AddAndList(t *testing.T) {
 
 	entry2 := Entry{
 		ModelName: "test-model-2",
-		PID:       12346,
+		PID:       os.Getpid(),
 		Port:      8081,
 		LogFile:   "/tmp/test2.log",
 		StartedAt: time.Now().Format(time.RFC3339),
@@ -218,7 +219,7 @@ func TestRegistry_FindByModel(t *testing.T) {
 	// Add entries for different models
 	entry1 := Entry{
 		ModelName: "model-a",
-		PID:       12345,
+		PID:       os.Getpid(),
 		Port:      8080,
 		LogFile:   "/tmp/test.log",
 		StartedAt: time.Now().Format(time.RFC3339),
@@ -229,7 +230,7 @@ func TestRegistry_FindByModel(t *testing.T) {
 
 	entry2 := Entry{
 		ModelName: "model-b",
-		PID:       12346,
+		PID:       os.Getpid(),
 		Port:      8081,
 		LogFile:   "/tmp/test2.log",
 		StartedAt: time.Now().Format(time.RFC3339),
@@ -265,7 +266,7 @@ func TestRegistry_persistence(t *testing.T) {
 
 	entry := Entry{
 		ModelName: "test-model",
-		PID:       12345,
+		PID:       os.Getpid(),
 		Port:      8080,
 		LogFile:   "/tmp/test.log",
 		StartedAt: time.Now().Format(time.RFC3339),

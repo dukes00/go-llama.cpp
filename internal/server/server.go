@@ -41,7 +41,10 @@ func Start(opts Options) (*Instance, error) {
 		return nil, ErrBinaryNotFound
 	}
 
-	args := config.ToArgs(opts.Config)
+	// Build a shallow copy so we can set the model path without mutating the caller's config.
+	cfgCopy := *opts.Config
+	cfgCopy.Model = opts.ModelPath
+	args := config.ToArgs(&cfgCopy)
 
 	modelName := opts.Config.Model
 	if modelName == "" && opts.ModelPath != "" {
@@ -61,7 +64,6 @@ func Start(opts Options) (*Instance, error) {
 	if err != nil {
 		return nil, err
 	}
-	logFile.Close()
 
 	cmd := exec.Command(binaryPath, args...)
 	cmd.Stdout = logFile
@@ -71,8 +73,10 @@ func Start(opts Options) (*Instance, error) {
 	cmd.SysProcAttr = sysProcAttr
 
 	if err := cmd.Start(); err != nil {
+		logFile.Close()
 		return nil, err
 	}
+	logFile.Close() // child has inherited the fd; parent no longer needs it
 
 	return &Instance{
 		ModelName: modelName,
