@@ -41,11 +41,11 @@ type Config struct {
 	SwaFull    *bool `json:"swa_full,omitempty"`
 
 	// ── Attention ────────────────────────────────────────────────────────────
-	// FlashAttn: emit --flash-attn only when true (no-op when false)
-	FlashAttn     *bool `json:"flash_attn,omitempty"`
-	VerbosePrompt *bool `json:"verbose_prompt,omitempty"`
-	Escape        *bool `json:"escape,omitempty"`
-	Perf          *bool `json:"perf,omitempty"`
+	// FlashAttn: accept "on", "off", or "auto"
+	FlashAttn     *string `json:"flash_attn,omitempty"`
+	VerbosePrompt *bool   `json:"verbose_prompt,omitempty"`
+	Escape        *bool   `json:"escape,omitempty"`
+	Perf          *bool   `json:"perf,omitempty"`
 
 	// ── RoPE ─────────────────────────────────────────────────────────────────
 	RopeScaling    *string  `json:"rope_scaling,omitempty"`
@@ -89,7 +89,7 @@ type Config struct {
 	CPUMoe         *bool   `json:"cpu_moe,omitempty"`
 	NCpuMoe        *int    `json:"n_cpu_moe,omitempty"`
 	// OpOffload: toggle; true→--op-offload, false→--no-op-offload
-	OpOffload *bool `json:"op_offload,omitempty"`
+	OpOffload *bool   `json:"op_offload,omitempty"`
 	Fit       *string `json:"fit,omitempty"`
 	FitTarget *string `json:"fit_target,omitempty"`
 	FitCtx    *int    `json:"fit_ctx,omitempty"`
@@ -126,47 +126,47 @@ type Config struct {
 	LogTimestamps *bool   `json:"log_timestamps,omitempty"`
 
 	// ── Sampling ─────────────────────────────────────────────────────────────
-	Samplers          *string  `json:"samplers,omitempty"`
-	Seed              *int     `json:"seed,omitempty"`
-	SamplerSeq        *string  `json:"sampler_seq,omitempty"`
-	IgnoreEos         *bool    `json:"ignore_eos,omitempty"`
-	Temp              *float64 `json:"temp,omitempty"`
-	TopK              *int     `json:"top_k,omitempty"`
-	TopP              *float64 `json:"top_p,omitempty"`
-	MinP              *float64 `json:"min_p,omitempty"`
-	TopNSigma         *float64 `json:"top_n_sigma,omitempty"`
-	XtcProbability    *float64 `json:"xtc_probability,omitempty"`
-	XtcThreshold      *float64 `json:"xtc_threshold,omitempty"`
-	TypicalP          *float64 `json:"typical_p,omitempty"`
-	RepeatLastN       *int     `json:"repeat_last_n,omitempty"`
-	RepetitionPenalty *float64 `json:"repetition_penalty,omitempty"`
-	PresencePenalty   *float64 `json:"presence_penalty,omitempty"`
-	FrequencyPenalty  *float64 `json:"frequency_penalty,omitempty"`
-	DryMultiplier     *float64 `json:"dry_multiplier,omitempty"`
-	DryBase           *float64 `json:"dry_base,omitempty"`
-	DryAllowedLength  *int     `json:"dry_allowed_length,omitempty"`
-	DryPenaltyLastN   *int     `json:"dry_penalty_last_n,omitempty"`
-	DrySequenceBreaker *string `json:"dry_sequence_breaker,omitempty"`
-	AdaptiveTarget    *float64 `json:"adaptive_target,omitempty"`
-	AdaptiveDecay     *float64 `json:"adaptive_decay,omitempty"`
-	DynaTempRange     *float64 `json:"dynatemp_range,omitempty"`
-	DynaTempExp       *float64 `json:"dynatemp_exp,omitempty"`
-	Mirostat          *int     `json:"mirostat,omitempty"`
-	MirostatLr        *float64 `json:"mirostat_lr,omitempty"`
-	MirostatEnt       *float64 `json:"mirostat_ent,omitempty"`
-	Grammar           *string  `json:"grammar,omitempty"`
-	GrammarFile       *string  `json:"grammar_file,omitempty"`
-	JsonSchema        *string  `json:"json_schema,omitempty"`
-	JsonSchemaFile    *string  `json:"json_schema_file,omitempty"`
-	BackendSampling   *bool    `json:"backend_sampling,omitempty"`
+	Samplers           *string  `json:"samplers,omitempty"`
+	Seed               *int     `json:"seed,omitempty"`
+	SamplerSeq         *string  `json:"sampler_seq,omitempty"`
+	IgnoreEos          *bool    `json:"ignore_eos,omitempty"`
+	Temp               *float64 `json:"temp,omitempty"`
+	TopK               *int     `json:"top_k,omitempty"`
+	TopP               *float64 `json:"top_p,omitempty"`
+	MinP               *float64 `json:"min_p,omitempty"`
+	TopNSigma          *float64 `json:"top_n_sigma,omitempty"`
+	XtcProbability     *float64 `json:"xtc_probability,omitempty"`
+	XtcThreshold       *float64 `json:"xtc_threshold,omitempty"`
+	TypicalP           *float64 `json:"typical_p,omitempty"`
+	RepeatLastN        *int     `json:"repeat_last_n,omitempty"`
+	RepetitionPenalty  *float64 `json:"repetition_penalty,omitempty"`
+	PresencePenalty    *float64 `json:"presence_penalty,omitempty"`
+	FrequencyPenalty   *float64 `json:"frequency_penalty,omitempty"`
+	DryMultiplier      *float64 `json:"dry_multiplier,omitempty"`
+	DryBase            *float64 `json:"dry_base,omitempty"`
+	DryAllowedLength   *int     `json:"dry_allowed_length,omitempty"`
+	DryPenaltyLastN    *int     `json:"dry_penalty_last_n,omitempty"`
+	DrySequenceBreaker *string  `json:"dry_sequence_breaker,omitempty"`
+	AdaptiveTarget     *float64 `json:"adaptive_target,omitempty"`
+	AdaptiveDecay      *float64 `json:"adaptive_decay,omitempty"`
+	DynaTempRange      *float64 `json:"dynatemp_range,omitempty"`
+	DynaTempExp        *float64 `json:"dynatemp_exp,omitempty"`
+	Mirostat           *int     `json:"mirostat,omitempty"`
+	MirostatLr         *float64 `json:"mirostat_lr,omitempty"`
+	MirostatEnt        *float64 `json:"mirostat_ent,omitempty"`
+	Grammar            *string  `json:"grammar,omitempty"`
+	GrammarFile        *string  `json:"grammar_file,omitempty"`
+	JsonSchema         *string  `json:"json_schema,omitempty"`
+	JsonSchemaFile     *string  `json:"json_schema_file,omitempty"`
+	BackendSampling    *bool    `json:"backend_sampling,omitempty"`
 
 	// ── Server – network ─────────────────────────────────────────────────────
-	Host      *string `json:"host,omitempty"`
-	Port      *int    `json:"port,omitempty"`
+	Host       *string `json:"host,omitempty"`
+	Port       *int    `json:"port,omitempty"`
 	StaticPath *string `json:"static_path,omitempty"`
-	ApiPrefix *string `json:"api_prefix,omitempty"`
-	Alias     *string `json:"alias,omitempty"`
-	Tags      *string `json:"tags,omitempty"`
+	ApiPrefix  *string `json:"api_prefix,omitempty"`
+	Alias      *string `json:"alias,omitempty"`
+	Tags       *string `json:"tags,omitempty"`
 
 	// ── Server – auth / TLS ──────────────────────────────────────────────────
 	ApiKey      *string `json:"api_key,omitempty"`
@@ -179,16 +179,16 @@ type Config struct {
 	ThreadsHttp *int `json:"threads_http,omitempty"`
 
 	// ── Server – features ────────────────────────────────────────────────────
-	Embeddings *bool   `json:"embeddings,omitempty"`
-	Reranking  *bool   `json:"reranking,omitempty"`
-	Metrics    *bool   `json:"metrics,omitempty"`
-	Props      *bool   `json:"props,omitempty"`
+	Embeddings *bool `json:"embeddings,omitempty"`
+	Reranking  *bool `json:"reranking,omitempty"`
+	Metrics    *bool `json:"metrics,omitempty"`
+	Props      *bool `json:"props,omitempty"`
 	// Slots: toggle; true→--slots, false→--no-slots
 	Slots   *bool   `json:"slots,omitempty"`
 	Pooling *string `json:"pooling,omitempty"`
 
 	// ── Server – slots / batching ────────────────────────────────────────────
-	NParallel            *int     `json:"n_parallel,omitempty"`
+	NParallel *int `json:"n_parallel,omitempty"`
 	// ContBatching: toggle; true→--cont-batching, false→--no-cont-batching
 	ContBatching         *bool    `json:"cont_batching,omitempty"`
 	SlotSavePath         *string  `json:"slot_save_path,omitempty"`
@@ -225,10 +225,10 @@ type Config struct {
 
 	// ── Server – Web UI ──────────────────────────────────────────────────────
 	// WebUI: toggle; true→--webui, false→--no-webui
-	WebUI          *bool   `json:"webui,omitempty"`
-	WebUIConfig    *string `json:"webui_config,omitempty"`
+	WebUI           *bool   `json:"webui,omitempty"`
+	WebUIConfig     *string `json:"webui_config,omitempty"`
 	WebUIConfigFile *string `json:"webui_config_file,omitempty"`
-	WebUIMcpProxy  *bool   `json:"webui_mcp_proxy,omitempty"`
+	WebUIMcpProxy   *bool   `json:"webui_mcp_proxy,omitempty"`
 
 	// ── Server – multimodal ──────────────────────────────────────────────────
 	Mmproj         *string `json:"mmproj,omitempty"`
@@ -244,9 +244,9 @@ type Config struct {
 	LookupCacheDynamic *string `json:"lookup_cache_dynamic,omitempty"`
 
 	// ── Server – router ──────────────────────────────────────────────────────
-	ModelsDir      *string `json:"models_dir,omitempty"`
-	ModelsPreset   *string `json:"models_preset,omitempty"`
-	ModelsMax      *int    `json:"models_max,omitempty"`
+	ModelsDir    *string `json:"models_dir,omitempty"`
+	ModelsPreset *string `json:"models_preset,omitempty"`
+	ModelsMax    *int    `json:"models_max,omitempty"`
 	// ModelsAutoload: toggle; true→--models-autoload, false→--no-models-autoload
 	ModelsAutoload *bool `json:"models_autoload,omitempty"`
 
@@ -295,10 +295,8 @@ func ToArgs(c *Config) []string {
 	args = appendFloat(args, "temp", c.Temp)
 	args = appendInt(args, "threads", c.Threads)
 
-	// Bool flags that only fire in one direction (existing behaviour)
-	if c.FlashAttn != nil && *c.FlashAttn {
-		args = append(args, "--flash-attn")
-	}
+	// FlashAttn: accept "on", "off", or "auto"
+	args = appendStr(args, "flash-attn", c.FlashAttn)
 	if c.NoMmap != nil && *c.NoMmap {
 		args = append(args, "--no-mmap")
 	}

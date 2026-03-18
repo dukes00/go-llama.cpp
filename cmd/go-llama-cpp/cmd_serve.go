@@ -47,7 +47,7 @@ var (
 	swaFullFlag    bool
 
 	// ── Attention ───────────────────────────────────────────────────────────
-	flashAttnFlag     bool
+	flashAttnFlag     string
 	verbosePromptFlag bool
 	escapeFlag        bool
 	perfFlag          bool
@@ -425,7 +425,7 @@ func cmdServe() *cobra.Command {
 	cmd.Flags().BoolVar(&swaFullFlag, "swa-full", false, "Use full-size SWA cache")
 
 	// ── Attention ────────────────────────────────────────────────────────────
-	cmd.Flags().BoolVar(&flashAttnFlag, "flash-attn", false, "Enable flash attention")
+	cmd.Flags().StringVar(&flashAttnFlag, "flash-attn", "", "Flash attention mode: on, off, auto")
 	cmd.Flags().BoolVar(&verbosePromptFlag, "verbose-prompt", false, "Print verbose prompt before generation")
 	cmd.Flags().BoolVar(&escapeFlag, "escape", false, "Process escape sequences in prompts")
 	cmd.Flags().BoolVar(&perfFlag, "perf", false, "Enable internal performance timings")

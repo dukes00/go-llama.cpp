@@ -13,7 +13,7 @@ func TestToArgs_full(t *testing.T) {
 	ngl := 35
 	temp := 0.7
 	threads := 8
-	flashAttn := true
+	flashAttn := "on"
 	noMmap := false
 	contBatching := true
 	nParallel := 4
@@ -51,7 +51,7 @@ func TestToArgs_full(t *testing.T) {
 		"--n-gpu-layers", "35",
 		"--temp", "0.7",
 		"--threads", "8",
-		"--flash-attn",
+		"--flash-attn", "on",
 		"--cont-batching",
 		"--cache-type-k", "fp16",
 		"--cache-type-v", "fp16",
@@ -61,18 +61,6 @@ func TestToArgs_full(t *testing.T) {
 
 	if len(args) != len(expectedArgs) {
 		t.Errorf("Expected %d args, got %d: %v", len(expectedArgs), len(args), args)
-	}
-
-	// Build a map of expected args for easy lookup
-	expectedMap := make(map[string]string)
-	for i := 0; i < len(expectedArgs); i += 2 {
-		expectedMap[expectedArgs[i]] = expectedArgs[i+1]
-	}
-
-	// Build a map of actual args for easy lookup
-	actualMap := make(map[string]string)
-	for i := 0; i < len(args); i += 2 {
-		actualMap[args[i]] = args[i+1]
 	}
 
 	// Compare slices directly - ToArgs returns args in deterministic order
@@ -107,113 +95,109 @@ func TestToArgs_partial(t *testing.T) {
 	}
 }
 
+func TestToArgs_flashAttn(t *testing.T) {
+	tests := []struct {
+		name      string
+		flashAttn string
+		expected  string
+	}{
+		{"FlashAttn on", "on", "on"},
+		{"FlashAttn off", "off", "off"},
+		{"FlashAttn auto", "auto", "auto"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cfg := &Config{
+				Model:     "models/test.gguf",
+				FlashAttn: &tt.flashAttn,
+			}
+			args := ToArgs(cfg)
+			found := false
+			for i := 0; i < len(args); i += 2 {
+				if args[i] == "--flash-attn" && args[i+1] == tt.expected {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Errorf("Expected --flash-attn %s when FlashAttn=%q, got %v", tt.expected, tt.flashAttn, args)
+			}
+		})
+	}
+}
+
 func TestToArgs_booleans(t *testing.T) {
-	// Test FlashAttn=true
-	flashAttnTrue := true
+	// Test NoMmap=true
+	noMmapTrue := true
 	cfg1 := &Config{
-		Model:     "models/test.gguf",
-		FlashAttn: &flashAttnTrue,
+		Model:  "models/test.gguf",
+		NoMmap: &noMmapTrue,
 	}
 	args1 := ToArgs(cfg1)
 	found := false
 	for i := 0; i < len(args1); i += 2 {
-		if args1[i] == "--flash-attn" {
+		if args1[i] == "--no-mmap" {
 			found = true
 			break
 		}
 	}
 	if !found {
-		t.Errorf("Expected --flash-attn when FlashAttn=true, got %v", args1)
-	}
-
-	// Test FlashAttn=false
-	flashAttnFalse := false
-	cfg2 := &Config{
-		Model:     "models/test.gguf",
-		FlashAttn: &flashAttnFalse,
-	}
-	args2 := ToArgs(cfg2)
-	found = false
-	for i := 0; i < len(args2); i += 2 {
-		if args2[i] == "--flash-attn" {
-			found = true
-			break
-		}
-	}
-	if found {
-		t.Errorf("Did not expect --flash-attn when FlashAttn=false, got %v", args2)
-	}
-
-	// Test NoMmap=true
-	noMmapTrue := true
-	cfg3 := &Config{
-		Model:  "models/test.gguf",
-		NoMmap: &noMmapTrue,
-	}
-	args3 := ToArgs(cfg3)
-	found = false
-	for i := 0; i < len(args3); i += 2 {
-		if args3[i] == "--no-mmap" {
-			found = true
-			break
-		}
-	}
-	if !found {
-		t.Errorf("Expected --no-mmap when NoMmap=true, got %v", args3)
+		t.Errorf("Expected --no-mmap when NoMmap=true, got %v", args1)
 	}
 
 	// Test NoMmap=false
 	noMmapFalse := false
-	cfg4 := &Config{
+	cfg2 := &Config{
 		Model:  "models/test.gguf",
 		NoMmap: &noMmapFalse,
 	}
-	args4 := ToArgs(cfg4)
+	args2 := ToArgs(cfg2)
 	found = false
-	for i := 0; i < len(args4); i += 2 {
-		if args4[i] == "--no-mmap" {
+	for i := 0; i < len(args2); i += 2 {
+		if args2[i] == "--no-mmap" {
 			found = true
 			break
 		}
 	}
 	if found {
-		t.Errorf("Did not expect --no-mmap when NoMmap=false, got %v", args4)
+		t.Errorf("Did not expect --no-mmap when NoMmap=false, got %v", args2)
 	}
 
 	// Test ContBatching=true
 	contBatchingTrue := true
-	cfg5 := &Config{
+	cfg3 := &Config{
 		Model:        "models/test.gguf",
 		ContBatching: &contBatchingTrue,
 	}
-	args5 := ToArgs(cfg5)
+	args3 := ToArgs(cfg3)
 	found = false
-	for i := 0; i < len(args5); i += 2 {
-		if args5[i] == "--cont-batching" {
+	for i := 0; i < len(args3); i += 2 {
+		if args3[i] == "--cont-batching" {
 			found = true
 			break
 		}
 	}
 	if !found {
-		t.Errorf("Expected --cont-batching when ContBatching=true, got %v", args5)
+		t.Errorf("Expected --cont-batching when ContBatching=true, got %v", args3)
 	}
 
 	// Test ContBatching=false
 	contBatchingFalse := false
-	cfg6 := &Config{
+	cfg4 := &Config{
 		Model:        "models/test.gguf",
 		ContBatching: &contBatchingFalse,
 	}
-	args6 := ToArgs(cfg6)
+	args4 := ToArgs(cfg4)
 	found = false
-	for i := 0; i < len(args6); i += 2 {
-		if args6[i] == "--cont-batching" {
+	for i := 0; i < len(args4); i += 2 {
+		if args4[i] == "--cont-batching" {
 			found = true
 			break
 		}
 	}
 	if found {
-		t.Errorf("Did not expect --cont-batching when ContBatching=false, got %v", args6)
+		t.Errorf("Did not expect --cont-batching when ContBatching=false, got %v", args4)
 	}
 }
 

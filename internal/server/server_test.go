@@ -25,7 +25,7 @@ func TestToArgs_integration(t *testing.T) {
 				NGPULayers: config.Ptr(35),
 				Temp:       config.Ptr(0.7),
 				Threads:    config.Ptr(8),
-				FlashAttn:  config.Ptr(true),
+				FlashAttn:  config.Ptr("on"),
 				NoMmap:     config.Ptr(false),
 				CacheTypeK: config.Ptr("fp16"),
 				CacheTypeV: config.Ptr("fp16"),
@@ -40,7 +40,7 @@ func TestToArgs_integration(t *testing.T) {
 				"--n-gpu-layers", "35",
 				"--temp", "0.7",
 				"--threads", "8",
-				"--flash-attn",
+				"--flash-attn", "on",
 				"--cache-type-k", "fp16",
 				"--cache-type-v", "fp16",
 				"--parallel", "2",
@@ -61,12 +61,12 @@ func TestToArgs_integration(t *testing.T) {
 			cfg: &config.Config{
 				Model:     "test.gguf",
 				Port:      config.Ptr(9000),
-				FlashAttn: config.Ptr(true),
+				FlashAttn: config.Ptr("on"),
 			},
 			expected: []string{
 				"--model", "test.gguf",
 				"--port", "9000",
-				"--flash-attn",
+				"--flash-attn", "on",
 			},
 		},
 	}
